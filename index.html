@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#7d294b">
+<title>TemanKuliah — Planner Mahasiswa</title>
+<style>
+:root{--wine:#7d294b;--pink:#d98aa7;--cream:#fff8f5;--ink:#30242a;--muted:#887982;--line:#f0dfe5;--white:#fff;--green:#3b9271;--shadow:0 12px 35px rgba(91,39,61,.08)}
+*{box-sizing:border-box}body{margin:0;background:#fbf4f2;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:linear-gradient(120deg,#702342,#a64d70);color:white;padding:22px max(20px,calc((100% - 1150px)/2));display:flex;justify-content:space-between;align-items:center;gap:15px}
+.brand{font-size:22px;font-weight:800;letter-spacing:.2px}.brand span{color:#ffdce8}.tagline{font-size:12px;opacity:.85;margin-top:3px}
+.date{font-size:13px;text-align:right;opacity:.95}
+.wrap{max-width:1150px;margin:26px auto;padding:0 18px}
+.welcome{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:20px}.welcome h1{font-size:25px;margin:0 0 5px}.welcome p{margin:0;color:var(--muted);font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat,.card{background:var(--white);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow)}
+.stat{padding:17px}.stat small{color:var(--muted)}.stat strong{display:block;font-size:26px;margin-top:7px;color:var(--wine)}
+.layout{display:grid;grid-template-columns:1.15fr .85fr;gap:17px}.column{display:grid;gap:17px;align-content:start}
+.card{padding:19px}.card h2{font-size:17px;margin:0 0 15px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+button{border:0;border-radius:10px;padding:10px 14px;background:var(--wine);color:white;font-weight:650;cursor:pointer}button:hover{filter:brightness(1.08)}button.secondary{background:#f8e9ef;color:var(--wine)}button.danger{background:#fff0f0;color:#b23b4c;padding:7px 10px}
+form{display:grid;gap:10px}input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fffdfc;color:var(--ink);font:inherit;outline:none}input:focus,select:focus{border-color:var(--pink)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.list{display:grid;gap:9px}.item{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;justify-content:space-between;gap:10px;align-items:center;background:#fffdfd}.item strong{font-size:14px}.item small{display:block;color:var(--muted);margin-top:4px}.item-actions{display:flex;gap:6px;flex-shrink:0}.badge{font-size:11px;background:#f9e8ef;color:var(--wine);padding:4px 8px;border-radius:20px;white-space:nowrap}
+.empty{color:var(--muted);font-size:13px;text-align:center;padding:16px}
+.progress-track{height:9px;border-radius:20px;background:#f4e7ec;overflow:hidden;margin:10px 0}.progress-fill{height:100%;background:linear-gradient(90deg,#b85d80,#7d294b);border-radius:20px}
+.target-line{display:flex;justify-content:space-between;font-size:13px}.muted{color:var(--muted);font-size:13px}
+footer{text-align:center;color:#a18e97;font-size:12px;padding:24px}
+@media(max-width:760px){header{padding:18px}.grid{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.welcome h1{font-size:21px}.stat{padding:14px}.stat strong{font-size:23px}}
+@media(max-width:390px){.row{grid-template-columns:1fr}.item{align-items:flex-start}.item-actions{flex-direction:column}}
+</style>
+</head>
+<body>
+<header>
+ <div><div class="brand">Teman<span>Kuliah.</span></div><div class="tagline">Temani kuliahmu, atur langkahmu.</div></div>
+ <div class="date" id="today"></div>
+</header>
+<main class="wrap">
+ <section class="welcome"><div><h1>Halo, semangat kuliah! 👋</h1><p>Atur tugas, jadwal, dan target belajarmu dalam satu tempat.</p></div></section>
+ <section class="grid">
+  <div class="stat"><small>📚 Total tugas</small><strong id="totalTask">0</strong></div>
+  <div class="stat"><small>✅ Tugas selesai</small><strong id="doneTask">0</strong></div>
+  <div class="stat"><small>🗓️ Jadwal kuliah</small><strong id="totalSchedule">0</strong></div>
+  <div class="stat"><small>🎯 Progres belajar</small><strong id="progressStat">0%</strong></div>
+ </section>
+ <section class="layout">
+  <div class="column">
+   <div class="card">
+    <div class="section-head"><h2>📝 Daftar Tugas</h2><span class="badge">To-do list</span></div>
+    <form id="taskForm">
+     <input id="taskName" placeholder="Nama tugas..." required>
+     <div class="row"><input id="taskCourse" placeholder="Mata kuliah"><input id="taskDeadline" type="date" required></div>
+     <button type="submit">+ Tambah Tugas</button>
+    </form>
+    <div style="height:14px"></div><div class="list" id="taskList"></div>
+   </div>
+   <div class="card">
+    <div class="section-head"><h2>📅 Jadwal Mata Kuliah</h2><span class="badge">Mingguan</span></div>
+    <form id="scheduleForm">
+     <input id="scheduleCourse" placeholder="Nama mata kuliah..." required>
+     <div class="row">
+      <select id="scheduleDay"><option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option><option>Jumat</option><option>Sabtu</option><option>Minggu</option></select>
+      <input id="scheduleTime" type="time" required>
+     </div>
+     <button type="submit">+ Tambah Jadwal</button>
+    </form>
+    <div style="height:14px"></div><div class="list" id="scheduleList"></div>
+   </div>
+  </div>
+  <div class="column">
+   <div class="card">
+    <h2>🎯 Target Belajar</h2>
+    <form id="targetForm">
+     <input id="targetName" placeholder="Contoh: Belajar Akuntansi 2 jam" required>
+     <div class="row"><input id="targetGoal" type="number" min="1" placeholder="Target (kali)" required><input id="targetDone" type="number" min="0" placeholder="Sudah tercapai" value="0" required></div>
+     <button type="submit">Simpan Target</button>
+    </form>
+    <div style="height:14px"></div><div id="targetList" class="list"></div>
+   </div>
+   <div class="card">
+    <h2>💡 Tips Hari Ini</h2>
+    <p style="font-size:14px;line-height:1.7;margin:0">Kerjakan tugas sedikit demi sedikit. Mulai dari yang paling dekat deadline-nya, lalu sisihkan waktu untuk istirahat. Kamu pasti bisa! 🌷</p>
+   </div>
+   <div class="card">
+    <h2>💾 Data Tersimpan</h2>
+    <p class="muted" style="line-height:1.6;margin:0">Data TemanKuliah tersimpan otomatis di browser perangkat ini. Jika membuka dari perangkat lain, datanya tidak otomatis tersinkron.</p>
+   </div>
+  </div>
+ </section>
+</main>
+<footer>TemanKuliah © 2026 · Planner sederhana untuk mahasiswa</footer>
+<script>
+const $=id=>document.getElementById(id);
+let tasks=JSON.parse(localStorage.getItem('tk_tasks')||'[]');
+let schedules=JSON.parse(localStorage.getItem('tk_schedules')||'[]');
+let targets=JSON.parse(localStorage.getItem('tk_targets')||'[]');
+const save=()=>{localStorage.setItem('tk_tasks',JSON.stringify(tasks));localStorage.setItem('tk_schedules',JSON.stringify(schedules));localStorage.setItem('tk_targets',JSON.stringify(targets));render()};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+$('today').textContent=new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());
+function render(){
+ $('totalTask').textContent=tasks.length;$('doneTask').textContent=tasks.filter(x=>x.done).length;$('totalSchedule').textContent=schedules.length;
+ const pct=targets.length?Math.round(targets.reduce((a,t)=>a+Math.min(t.done/t.goal,1),0)/targets.length*100):0;$('progressStat').textContent=pct+'%';
+ $('taskList').innerHTML=tasks.length?tasks.map((t,i)=>`<div class="item"><div><strong style="${t.done?'text-decoration:line-through;color:#9b8b92':''}">${esc(t.name)}</strong><small>${esc(t.course||'Tanpa mata kuliah')} · Deadline: ${esc(t.deadline)}</small></div><div class="item-actions"><button class="secondary" onclick="toggleTask(${i})">${t.done?'Batal':'Selesai'}</button><button class="danger" onclick="removeTask(${i})">Hapus</button></div></div>`).join(''):'<div class="empty">Belum ada tugas. Yuk, tambahkan tugasmu!</div>';
+ $('scheduleList').innerHTML=schedules.length?schedules.slice().sort((a,b)=>['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'].indexOf(a.day)-['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'].indexOf(b.day)||a.time.localeCompare(b.time)).map((s,i)=>`<div class="item"><div><strong>${esc(s.course)}</strong><small>${esc(s.day)} · ${esc(s.time)}</small></div><button class="danger" onclick="removeSchedule(${schedules.indexOf(s)})">Hapus</button></div>`).join(''):'<div class="empty">Belum ada jadwal kuliah.</div>';
+ $('targetList').innerHTML=targets.length?targets.map((t,i)=>`<div class="item" style="display:block"><div class="target-line"><strong>${esc(t.name)}</strong><span>${t.done}/${t.goal}</span></div><div class="progress-track"><div class="progress-fill" style="width:${Math.min(t.done/t.goal*100,100)}%"></div></div><div class="section-head"><span class="muted">${Math.round(Math.min(t.done/t.goal,1)*100)}% tercapai</span><div class="item-actions"><button class="secondary" onclick="changeTarget(${i},-1)">−</button><button class="secondary" onclick="changeTarget(${i},1)">+</button><button class="danger" onclick="removeTarget(${i})">Hapus</button></div></div></div>`).join(''):'<div class="empty">Belum ada target belajar.</div>';
+}
+$('taskForm').addEventListener('submit',e=>{e.preventDefault();tasks.push({name:$('taskName').value.trim(),course:$('taskCourse').value.trim(),deadline:$('taskDeadline').value,done:false});e.target.reset();save()});
+$('scheduleForm').addEventListener('submit',e=>{e.preventDefault();schedules.push({course:$('scheduleCourse').value.trim(),day:$('scheduleDay').value,time:$('scheduleTime').value});e.target.reset();save()});
+$('targetForm').addEventListener('submit',e=>{e.preventDefault();const goal=Number($('targetGoal').value),done=Number($('targetDone').value);if(goal<1||done<0)return;targets.push({name:$('targetName').value.trim(),goal,done});e.target.reset();$('targetDone').value=0;save()});
+function toggleTask(i){tasks[i].done=!tasks[i].done;save()}function removeTask(i){tasks.splice(i,1);save()}function removeSchedule(i){schedules.splice(i,1);save()}function removeTarget(i){targets.splice(i,1);save()}function changeTarget(i,n){targets[i].done=Math.max(0,targets[i].done+n);save()}
+render();
+</script>
+</body>
+</html>
